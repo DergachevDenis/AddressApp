@@ -1,22 +1,20 @@
 package ch.makery.address.view;
 
-import ch.makery.address.MainApp;
-import ch.makery.address.model.Person;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import ch.makery.address.MainApp;
+import ch.makery.address.model.Person;
 import ch.makery.address.util.*;
-
 
 public class PersonOverviewController {
     @FXML
     private TableView<Person> personTable;
-
     @FXML
     private TableColumn<Person, String> firstNameColumn;
-
     @FXML
     private TableColumn<Person, String> lastNameColumn;
 
@@ -33,39 +31,40 @@ public class PersonOverviewController {
     @FXML
     private Label birthdayLabel;
 
-    // Ссылка на главное приложение.
+    // Ссылка на главное приложение
     private MainApp mainApp;
 
+    //Контролер, который вызывается перед отображение страницы
     public PersonOverviewController() {
     }
 
-    //Инициализация класса-контроллера. Этот метод вызывается автоматически после того, как fxml-файл будет загружен.
+
     @FXML
     private void initialize() {
-        // Инициализация таблицы адресатов с двумя столбцами.
+        //Инициализация таблицы адресатов с двумя столбцами.
         firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
-        // Очистка дополнительной информации об адресате.
+        
+        // Очищает поля данных адресата.
         showPersonDetails(null);
 
-        // Слушаем изменения выбора, и при изменении отображаем дополнительную информацию об адресате.
-        personTable.getSelectionModel().selectedItemProperty().addListener((observable,oldValue,newValue)->showPersonDetails(newValue));
+        // Добавляет слушателя, который отслеживает выбор пользователя и отображет информацию о выбранном адресате.
+        personTable.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> showPersonDetails(newValue));
     }
 
-
-
-    //Вызывается главным приложением, которое даёт на себя ссылку.
+    //Вызывается из главного приложения,что бы записать ссылку на себя же.
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
-        // Добавление в таблицу данных из наблюдаемого списка
+
+        // Добавление в таблицу данных из списка
         personTable.setItems(mainApp.getPersonData());
     }
-
-    //Заполняет все текстовые поля, отображая подробности об адресате.
-    // * Если указанный адресат = null, то все текстовые поля очищаются.
+    
+    // Показывает в корневом макете сведения об адресатах
     private void showPersonDetails(Person person) {
         if (person != null) {
-            // Заполняем метки информацией из объекта person.
+            // Загружаем сведения о адресатах.
             firstNameLabel.setText(person.getFirstName());
             lastNameLabel.setText(person.getLastName());
             streetLabel.setText(person.getStreet());
@@ -73,7 +72,7 @@ public class PersonOverviewController {
             cityLabel.setText(person.getCity());
             birthdayLabel.setText(DateUtil.format(person.getBirthday()));
         } else {
-            // Если Person = null, то убираем весь текст.
+            // Обнуляет отображение информации, если отсутствует переданный пользователь.
             firstNameLabel.setText("");
             lastNameLabel.setText("");
             streetLabel.setText("");
@@ -82,52 +81,53 @@ public class PersonOverviewController {
             birthdayLabel.setText("");
         }
     }
-
-    //Вызывается, когда пользователь кликает по кнопке удаления
+    
+    // Метод после нажатия кнопки Delete
     @FXML
-    private void handleDeletePerson(){
+    private void handleDeletePerson() {
         int selectedIndex = personTable.getSelectionModel().getSelectedIndex();
-        if (selectedIndex>=0){
+        if (selectedIndex >= 0) {
             personTable.getItems().remove(selectedIndex);
-        }
-        else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
+        } else {
+            //Если ничего не выбрано.
+            Alert alert = new Alert(AlertType.WARNING);
             alert.initOwner(mainApp.getPrimaryStage());
-            alert.setTitle("No Selection");
-            alert.setHeaderText("No Person Selected");
-            alert.setHeaderText("No Person Selected");
-            alert.setContentText("Please select a person in the table.");
+            alert.setTitle("Не выбран адресат");
+            alert.setHeaderText("Не выбран адресат");
+            alert.setContentText("Пожалуста, выберите адресата из таблицы.");
+            
             alert.showAndWait();
         }
-
     }
-    //Вызывается, когда пользователь кликает по кнопке New
+    
+    // Метод после нажатия кнопки New
     @FXML
-    private void handleNewPerson(){
+    private void handleNewPerson() {
         Person tempPerson = new Person();
-        boolean ocClicked = mainApp.showPersonEditDialog(tempPerson);
-        if (ocClicked){
+        boolean okClicked = mainApp.showPersonEditDialog(tempPerson);
+        if (okClicked) {
             mainApp.getPersonData().add(tempPerson);
         }
     }
 
+    // Метод после нажатия кнопки Edit
     @FXML
-    private void handleEditPerson(){
+    private void handleEditPerson() {
         Person selectedPerson = personTable.getSelectionModel().getSelectedItem();
-        if(selectedPerson!=null){
-            boolean ocClicked = mainApp.showPersonEditDialog(selectedPerson);
-            if (ocClicked){
+        if (selectedPerson != null) {
+            boolean okClicked = mainApp.showPersonEditDialog(selectedPerson);
+            if (okClicked) {
                 showPersonDetails(selectedPerson);
             }
-        }
-        // Ничего не выбрано
-        else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.initOwner(mainApp.getPrimaryStage());
-            alert.setTitle("No Selection");
-            alert.setHeaderText("No Peson Selected");
-            alert.setContentText("Please select a person in the table.");
 
+        } else {
+            //Если ничего не выбрано.
+            Alert alert = new Alert(AlertType.WARNING);
+            alert.initOwner(mainApp.getPrimaryStage());
+            alert.setTitle("Не выбран адресат");
+            alert.setHeaderText("Не выбран адресат");
+            alert.setContentText("Пожалуста, выберите адресата из таблицы.");
+            
             alert.showAndWait();
         }
     }
