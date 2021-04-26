@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.prefs.Preferences;
 
+import ch.makery.address.view.BirthdayStatisticsController;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -225,6 +226,29 @@ public class MainApp extends Application {
         	alert.setContentText("Could not save data to file:\n" + file.getPath());
         	
         	alert.showAndWait();
+        }
+    }
+
+    public void showBirthdayStatistics(){
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("view/BirthdayStatistics.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Birthday Statistics");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(primaryStage);
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+
+            //put address people in controller
+            BirthdayStatisticsController controller = loader.getController();
+            controller.setPersonData(personData);
+
+            dialogStage.show();
+        }
+        catch (IOException e){
+            e.printStackTrace();
         }
     }
 
